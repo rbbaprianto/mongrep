@@ -1,0 +1,78 @@
+{
+  "nodes": [
+    {
+      "name": "hrmlabs-mongo-primary",
+      "host": "hrmlabs-mongo-primary",
+      "user": "root",
+      "port": 22,
+      "mongodb_port": 27017,
+      "role": "primary",
+      "priority": 2,
+      "votes": 1,
+      "description": "Primary MongoDB node for HRM Labs cluster"
+    },
+    {
+      "name": "hrmlabs-mongo-secondary",
+      "host": "hrmlabs-mongo-secondary", 
+      "user": "root",
+      "port": 22,
+      "mongodb_port": 27017,
+      "role": "secondary",
+      "priority": 1,
+      "votes": 1,
+      "description": "Secondary MongoDB node for HRM Labs cluster"
+    },
+    {
+      "name": "hrmlabs-mongo-analytics",
+      "host": "hrmlabs-mongo-analytics",
+      "user": "root", 
+      "port": 22,
+      "mongodb_port": 27017,
+      "role": "analytics",
+      "priority": 0,
+      "votes": 1,
+      "hidden": true,
+      "description": "Analytics MongoDB node for HRM Labs cluster (hidden)"
+    }
+  ],
+  "cluster": {
+    "replica_set_name": "hrmlabsrs",
+    "database_name": "hrmlabs",
+    "auth_enabled": false,
+    "ssl_enabled": false
+  },
+  "dashboard": {
+    "port": 3000,
+    "auto_refresh_interval": 5000,
+    "log_lines_default": 100,
+    "max_query_timeout": 30000
+  },
+  "backup": {
+    "enabled": false,
+    "schedule": "0 2 * * *",
+    "retention_days": 7,
+    "backup_path": "/var/backups/mongodb"
+  },
+  "monitoring": {
+    "health_check_interval": 30,
+    "alert_email": "admin@hrmlabs.com",
+    "slack_webhook": "",
+    "enable_notifications": false
+  },
+  "security": {
+    "firewall_enabled": false,
+    "allowed_ips": ["0.0.0.0/0"],
+    "ssh_key_path": "/root/.ssh/id_rsa",
+    "mongodb_auth": {
+      "username": "",
+      "password": "",
+      "auth_database": "admin"
+    }
+  },
+  "metadata": {
+    "created_by": "HRM Labs Automation Script",
+    "created_date": "2024-01-01T00:00:00Z",
+    "version": "1.0.0",
+    "environment": "development"
+  }
+}
