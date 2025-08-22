@@ -1,0 +1,42 @@
+{
+  "name": "hrmlabs-mongo-dashboard",
+  "version": "2.0.0",
+  "description": "HRM Labs MongoDB Replication Management Dashboard - Production Ready",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "install-deps": "npm install",
+    "setup": "node setup.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "mongodb": "^6.0.0",
+    "node-ssh": "^13.1.0",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0",
+    "ws": "^8.14.2",
+    "node-pty": "^0.10.1",
+    "express-rate-limit": "^7.1.5",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0",
+    "pm2": "^5.3.0",
+    "archiver": "^6.0.1",
+    "csv-parser": "^3.0.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
