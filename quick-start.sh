@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # HRM Labs MongoDB Quick Start Script
-# Simplified script for quick deployment
+# Enhanced for auto Node.js/npm installation and dashboard setup
 
 set -e
 
@@ -41,6 +41,27 @@ if [ ! -f "./hrmlabs-mongo-automation.sh" ]; then
     exit 1
 fi
 
+# Check Node.js & npm
+echo -e "${BLUE}🔍 Checking Node.js & npm...${NC}"
+if ! command -v node &>/dev/null; then
+    echo -e "${YELLOW}📦 Installing Node.js 20 LTS...${NC}"
+    curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+    dnf install -y nodejs
+fi
+
+echo -e "${GREEN}✓ Node.js version: $(node -v)${NC}"
+echo -e "${GREEN}✓ npm version: $(npm -v)${NC}"
+
+# Install dependencies
+echo -e "${BLUE}📦 Installing npm dependencies...${NC}"
+npm install
+
+# Ensure .env exists
+if [ ! -f ".env" ]; then
+    echo -e "${YELLOW}⚠ .env file not found, creating from example...${NC}"
+    cp .env.example .env
+fi
+
 # Check node connectivity
 echo -e "${BLUE}🔍 Checking node connectivity...${NC}"
 NODES=("hrmlabs-mongo-primary" "hrmlabs-mongo-secondary" "hrmlabs-mongo-analytics")
@@ -60,11 +81,6 @@ if [ ${#FAILED_NODES[@]} -gt 0 ]; then
     for node in "${FAILED_NODES[@]}"; do
         echo -e "${RED}  - $node${NC}"
     done
-    echo ""
-    echo "Troubleshooting tips:"
-    echo "1. Check if hostnames are correctly configured in /etc/hosts"
-    echo "2. Ensure all nodes are powered on and network accessible"
-    echo "3. Verify firewall settings"
     exit 1
 fi
 
@@ -96,16 +112,11 @@ if [ ${#SSH_FAILED[@]} -gt 0 ]; then
             ;;
         2)
             echo -e "${BLUE}🔑 Setting up SSH keys...${NC}"
-            
-            # Generate SSH key if not exists
             if [ ! -f "/root/.ssh/id_rsa" ]; then
                 ssh-keygen -t rsa -b 4096 -C "hrmlabs-automation" -f /root/.ssh/id_rsa -N ""
                 echo -e "${GREEN}✓ SSH key generated${NC}"
             fi
-            
-            # Copy SSH key to nodes
             for node in "${SSH_FAILED[@]}"; do
-                echo "Setting up SSH key for $node..."
                 ssh-copy-id "root@$node" || echo -e "${YELLOW}⚠ Failed to copy key to $node${NC}"
             done
             ;;
@@ -123,46 +134,14 @@ fi
 echo -e "${GREEN}✅ Pre-flight checks completed!${NC}"
 echo ""
 
-# Show configuration summary
-echo -e "${BLUE}📊 Configuration Summary:${NC}"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "Nodes:"
-for i in "${!NODES[@]}"; do
-    role=""
-    case $i in
-        0) role="Primary" ;;
-        1) role="Secondary" ;;
-        2) role="Analytics (Hidden)" ;;
-    esac
-    echo "  $((i+1)). ${NODES[$i]} - $role"
-done
-echo ""
-echo "Replica Set: hrmlabsrs"
-echo "Database: hrmlabs"  
-echo "Web Dashboard: http://localhost:3000"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-
-# Confirmation
-echo -e "${YELLOW}⚠ This will install and configure MongoDB on all nodes.${NC}"
-echo "Estimated time: 10-15 minutes"
-echo ""
-read -p "Do you want to continue? (y/N): " confirm
-
-if [[ ! $confirm =~ ^[Yy]$ ]]; then
-    echo -e "${BLUE}👋 Setup cancelled by user.${NC}"
-    exit 0
-fi
-
 # Start main automation
 echo -e "${GREEN}🚀 Starting main automation script...${NC}"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-# Make main script executable
 chmod +x ./hrmlabs-mongo-automation.sh
-
-# Execute main script
 ./hrmlabs-mongo-automation.sh
+
+# Start web dashboard
+echo -e "${BLUE}🌐 Starting Web Dashboard...${NC}"
+npm run dev > dashboard.log 2>&1 &
 
 # Success message
 echo ""
@@ -176,10 +155,6 @@ echo ""
 echo -e "${BLUE}🔧 Quick commands:${NC}"
 echo "📊 Check replica status: mongosh --host hrmlabs-mongo-primary:27017 --eval 'rs.status()'"
 echo "📋 View dashboard logs: tail -f ./dashboard.log"
-echo "🔄 Restart dashboard: cd $(pwd) && npm start"
-echo ""
-echo -e "${BLUE}📚 Documentation:${NC}"
-echo "📖 Full documentation: cat README.md"
-echo "⚙️ Configuration template: cat accounts.json.template"
+echo "🔄 Restart dashboard: npm start"
 echo ""
 echo -e "${GREEN}✅ Your HRM Labs MongoDB cluster is ready for use!${NC}"
